@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestionnaire de Budget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .expense-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .expense-item input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .expense-item input[type="number"] {
+            width: 120px;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 80px;
+        }
+
+        .expense-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .expense-checkbox:checked + .checkbox-label {
+            color: #51cf66;
+            font-weight: bold;
+        }
+
+        .expense-item:has(.expense-checkbox:checked) {
+            background: rgba(81, 207, 102, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-remove {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-add {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            margin-top: 10px;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .weekly-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .week-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .week-number {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .week-amount {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .total-remaining {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .emoji {
+            margin-right: 8px;
+        }
+
+        .social-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .expense-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .expense-item input[type="number"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Mon Budget Mensuel</h1>
+
+        <div class="section">
+            <h2><span class="emoji">🎯</span>Objectif du mois</h2>
+            <div class="form-group">
+                <label for="monthly-goal">Mon objectif ce mois-ci</label>
+                <input type="text" id="monthly-goal" placeholder="Ex: Ne pas prendre d'acompte, Économiser 200€, Réduire les sorties..." />
+            </div>
+        </div>
+        <!-- ... Vos sections habituelles (Situation bancaire, Revenus, Charges...) ... -->
+
+        <!-- Résultat -->
+        <div id="result" class="result" style="display: none;">
+            <div class="total-remaining" id="total-amount">0 €</div>
+            <p>Argent disponible pour les 4 semaines</p>
+
+            <div class="weekly-breakdown">
+                <div class="week-card">
+                    <div class="week-number">Semaine 1</div>
+                    <div class="week-amount" id="week1">0 €</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">15%</div>
+                    <div class="daily-amount" id="daily1" style="font-size: 0.7em; margin-top: 5px; opacity: 0.7;"></div>
+                </div>
+                <div class="week-card">
+                    <div class="week-number">Semaine 2</div>
+                    <div class="week-amount" id="week2">0 €</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">20%</div>
+                    <div class="daily-amount" id="daily2" style="font-size: 0.7em; margin-top: 5px; opacity: 0.7;"></div>
+                </div>
+                <div class="week-card">
+                    <div class="week-number">Semaine 3</div>
+                    <div class="week-amount" id="week3">0 €</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">25%</div>
+                    <div class="daily-amount" id="daily3" style="font-size: 0.7em; margin-top: 5px; opacity: 0.7;"></div>
+                </div>
+                <div class="week-card">
+                    <div class="week-number">Semaine 4</div>
+                    <div class="week-amount" id="week4">0 €</div>
+                    <div style="font-size: 0.8em; opacity: 0.8;">40%</div>
+                    <div class="daily-amount" id="daily4" style="font-size: 0.7em; margin-top: 5px; opacity: 0.7;"></div>
+                </div>
+            </div>
+            <!-- Boutons sociaux... -->
+        </div>
+
+        <!-- Section Historique -->
+        <div class="section" id="history-section" style="display:none;">
+            <h2><span class="emoji">🕒</span>Historique des budgets calculés</h2>
+            <ul id="history-list" style="max-height: 200px; overflow-y: auto; padding-left: 20px; font-size: 14px; color:#333;"></ul>
+            <button class="btn btn-remove" style="margin-top: 10px;" onclick="clearHistory()">Effacer l'historique</button>
+        </div>
+
+        <!-- Vos autres boutons et instructions... -->
+
+    </div>
+
+    <script>
+        let fixedExpenseCounter = 9;
+        let oneTimeExpenseCounter = 1;
+        let pocketCounter = 3;
+
+        function addFixedExpense() {
+            const container = document.getElementById('fixed-expenses');
+            const expenseItem = document.createElement('div');
+            expenseItem.className = 'expense-item';
+            expenseItem.innerHTML = `
+                <input type="text" placeholder="Description" />
+                <input type="number" placeholder="Montant (€)" step="0.01" />
+                <div class="checkbox-container">
+                    <input type="checkbox" id="fixed-check-${fixedExpenseCounter}" class="expense-checkbox" />
+                    <label for="fixed-check-${fixedExpenseCounter}" class="checkbox-label">✓ Payé</label>
+                </div>
+                <button class="btn btn-remove" onclick="removeExpense(this)">Suppr.</button>
+            `;
+            container.appendChild(expenseItem);
+            fixedExpenseCounter++;
+        }
+
+        function addOneTimeExpense() {
+            const container = document.getElementById('one-time-expenses');
+            const expenseItem = document.createElement('div');
+            expenseItem.className = 'expense-item';
+            expenseItem.innerHTML = `
+                <input type="text" placeholder="Description" />
+                <input type="number" placeholder="Montant (€)" step="0.01" />
+                <div class="checkbox-container">
+                    <input type="checkbox" id="onetime-check-${oneTimeExpenseCounter}" class="expense-checkbox" />
+                    <label for="onetime-check-${oneTimeExpenseCounter}" class="checkbox-label">✓ Payé</label>
+                </div>
+                <button class="btn btn-remove" onclick="removeExpense(this)">Suppr.</button>
+            `;
+            container.appendChild(expenseItem);
+            oneTimeExpenseCounter++;
+        }
+
+        function addRevolutPocket() {
+            const container = document.getElementById('revolut-pockets');
+            const expenseItem = document.createElement('div');
+            expenseItem.className = 'expense-item';
+            expenseItem.innerHTML = `
+                <input type="text" placeholder="Nom du pocket" />
+                <input type="number" placeholder="Montant (€)" step="0.01" />
+                <div class="checkbox-container">
+                    <input type="checkbox" id="pocket-check-${pocketCounter}" class="expense-checkbox" />
+                    <label for="pocket-check-${pocketCounter}" class="checkbox-label">✓ Transféré</label>
+                </div>
+                <button class="btn btn-remove" onclick="removeExpense(this)">Suppr.</button>
+            `;
+            container.appendChild(expenseItem);
+            pocketCounter++;
+        }
+
+        function removeExpense(button) {
+            button.parentElement.remove();
+            calculateBudget();
+        }
+
+        function addToHistory(entry) {
+            const historySection = document.getElementById('history-section');
+            const historyList = document.getElementById('history-list');
+
+            if (historySection.style.display === 'none') {
+                historySection.style.display = 'block';
+            }
+
+            const li = document.createElement('li');
+            li.style.marginBottom = '8px';
+            li.textContent = `[${entry.date}] Revenu total: ${entry.totalIncome} €, Charges fixes: ${entry.totalFixed} €, Dépenses ponctuelles: ${entry.totalOneTime} €, Disponible: ${entry.available} €`;
+
+            historyList.insertBefore(li, historyList.firstChild);
+        }
+
+        function clearHistory() {
+            if (confirm("Voulez-vous vraiment effacer tout l'historique des calculs ?")) {
+                document.getElementById('history-list').innerHTML = '';
+                document.getElementById('history-section').style.display = 'none';
+            }
+        }
+
+        function calculateBudget() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const additionalIncome = parseFloat(document.getElementById('additional-income').value) || 0;
+            const cashback = parseFloat(document.getElementById('cashback').value) || 0;
+            const totalIncome = salary + additionalIncome + cashback;
+
+            const overdraft = parseFloat(document.getElementById('overdraft').value) || 0;
+            const advance = parseFloat(document.getElementById('advance').value) || 0;
+
+            const fixedExpenses = document.querySelectorAll('#fixed-expenses .expense-item input[type="number"]');
+            let totalFixed = 0;
+            fixedExpenses.forEach(input => {
+                totalFixed += parseFloat(input.value) || 0;
+            });
+
+            const oneTimeExpenses = document.querySelectorAll('#one-time-expenses .expense-item input[type="number"]');
+            let totalOneTime = 0;
+            oneTimeExpenses.forEach(input => {
+                totalOneTime += parseFloat(input.value) || 0;
+            });
+
+            let available = totalIncome - overdraft - advance - totalFixed - totalOneTime;
+
+            if (available <= 0) {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('total-amount').textContent = '0 €';
+                document.getElementById('total-amount').style.color = '#ff6b6b';
+                document.getElementById('week1').textContent = '0 €';
+                document.getElementById('week2').textContent = '0 €';
+                document.getElementById('week3').textContent = '0 €';
+                document.getElementById('week4').textContent = '0 €';
+                document.getElementById('daily1').textContent = '';
+                document.getElementById('daily2').textContent = '';
+                document.getElementById('daily3').textContent = '';
+                document.getElementById('daily4').textContent = '';
+                return;
+            }
+
+            const week1 = available * 0.15;
+            const week2 = available * 0.20;
+            const week3 = available * 0.25;
+            const week4 = available * 0.40;
+
+            const daily1 = week1 / 7;
+            const daily2 = week2 / 7;
+            const daily3 = week3 / 7;
+            const daily4 = week4 / 7;
+
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('total-amount').textContent = available.toFixed(2) + ' €';
+            document.getElementById('total-amount').style.color = 'white';
+            document.getElementById('week1').textContent = week1.toFixed(2) + ' €';
+            document.getElementById('week2').textContent = week2.toFixed(2) + ' €';
+            document.getElementById('week3').textContent = week3.toFixed(2) + ' €';
+            document.getElementById('week4').textContent = week4.toFixed(2) + ' €';
+            document.getElementById('daily1').textContent = '≈ ' + daily1.toFixed(2) + '€/jour';
+            document.getElementById('daily2').textContent = '≈ ' + daily2.toFixed(2) + '€/jour';
+            document.getElementById('daily3').textContent = '≈ ' + daily3.toFixed(2) + '€/jour';
+            document.getElementById('daily4').textContent = '≈ ' + daily4.toFixed(2) + '€/jour';
+
+            // Ajout à l'historique à chaque calcul
+            addToHistory({
+                date: new Date().toLocaleString(),
+                totalIncome: totalIncome.toFixed(2),
+                totalFixed: totalFixed.toFixed(2),
+                totalOneTime: totalOneTime.toFixed(2),
+                available: available.toFixed(2),
+            });
+        }
+
+        /* Les autres fonctions de votre script restent inchangées :
+           exportBudgetToUrl(), importFromUrl(), resetBudget(), etc. */
+
+        document.addEventListener('input', function (e) {
+            if (e.target.type === 'number') {
+                clearTimeout(window.autoCalcTimeout);
+                window.autoCalcTimeout = setTimeout(calculateBudget, 500);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkUrlForBudget();
+            calculateBudget();
+        });
+    </script>
+</body>
+</html>
